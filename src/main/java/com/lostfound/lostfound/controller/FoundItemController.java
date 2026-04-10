@@ -3,13 +3,10 @@ package com.lostfound.lostfound.controller;
 import com.lostfound.lostfound.model.FoundItem;
 import com.lostfound.lostfound.service.FoundItemService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller; // ✅ IMPORTANT
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RestController
+@Controller
 @RequestMapping("/found-items")
 public class FoundItemController {
 
@@ -17,22 +14,17 @@ public class FoundItemController {
     private FoundItemService service;
 
     @PostMapping
-    public ResponseEntity<FoundItem> saveItem(@RequestBody FoundItem item) {
-        FoundItem savedItem = service.saveFoundItem(item);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem);
-    }
+    public String saveItem(@RequestParam String name,
+                           @RequestParam String description,
+                           @RequestParam String location) {
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FoundItem> getItem(@PathVariable Long id) {
-        FoundItem item = service.getFoundItemById(id);
-        if (item == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(item);
-    }
+        FoundItem item = new FoundItem();
+        item.setName(name);
+        item.setDescription(description);
+        item.setLocation(location);
 
-    @GetMapping
-    public List<FoundItem> getAllItems() {
-        return service.getAllFoundItems();
+        service.saveFoundItem(item);
+
+        return "redirect:/"; // ✅ NOW WORKS
     }
 }

@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Lost Items</title>
+    <title>Lost &amp; Found</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
             --bg: #0f1117;
-            --surface: #191c27;
             --card: #1e2235;
             --border: #2a2f47;
-            --accent: #e8a045;
-            --accent-glow: rgba(232, 160, 69, 0.18);
+            --amber: #e8a045;
+            --amber-glow: rgba(232,160,69,0.18);
+            --teal: #3ecfb2;
+            --teal-glow: rgba(62,207,178,0.15);
+            --violet: #8b7cf8;
+            --violet-glow: rgba(139,124,248,0.15);
             --text: #e8eaf2;
             --muted: #7c82a0;
-            --input-bg: #13162080;
+            --input-bg: rgba(19,22,32,0.5);
         }
 
         body {
@@ -25,60 +28,180 @@
             min-height: 100vh;
             padding: 48px 24px;
             background-image:
-                    radial-gradient(ellipse 60% 40% at 70% 10%, rgba(232,160,69,0.07) 0%, transparent 70%),
-                    radial-gradient(ellipse 40% 30% at 10% 80%, rgba(90,100,200,0.06) 0%, transparent 60%);
+                    radial-gradient(ellipse 60% 40% at 75% 5%,  rgba(232,160,69,0.07) 0%, transparent 70%),
+                    radial-gradient(ellipse 40% 35% at 10% 85%, rgba(90,100,200,0.06) 0%, transparent 60%);
         }
 
-        .page-wrapper {
-            max-width: 760px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 48px;
-        }
+        .view { display: none; }
+        .view.active { display: block; }
 
-        /* ── Header ── */
+        /* ── Shared Header ── */
         .page-header {
+            max-width: 760px;
+            margin: 0 auto 40px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             padding-bottom: 24px;
             border-bottom: 1px solid var(--border);
         }
 
         .page-header .icon {
             width: 44px; height: 44px;
-            background: var(--accent-glow);
-            border: 1px solid var(--accent);
+            background: var(--amber-glow);
+            border: 1px solid var(--amber);
             border-radius: 12px;
             display: grid; place-items: center;
-            font-size: 20px;
-            flex-shrink: 0;
+            font-size: 20px; flex-shrink: 0;
         }
 
         .page-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.75rem;
-            color: var(--text);
             letter-spacing: -0.02em;
         }
 
-        .page-header p {
-            font-size: 0.825rem;
+        .page-header p { font-size: 0.825rem; color: var(--muted); margin-top: 2px; }
+
+        /* ── Landing ── */
+        #view-landing .page-wrapper { max-width: 760px; margin: 0 auto; }
+
+        .landing-subtitle {
+            text-align: center;
             color: var(--muted);
-            margin-top: 2px;
+            font-size: 0.875rem;
+            margin-bottom: 36px;
         }
 
-        /* ── Cards ── */
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 580px) { .option-grid { grid-template-columns: 1fr; } }
+
+        .option-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 24px 28px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            text-align: center;
+            transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+            animation: fadeUp 0.5s ease both;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .option-card:nth-child(1) { animation-delay: 0.05s; }
+        .option-card:nth-child(2) { animation-delay: 0.13s; }
+        .option-card:nth-child(3) { animation-delay: 0.21s; }
+
+        .option-card::before {
+            content: '';
+            position: absolute; inset: 0;
+            opacity: 0;
+            transition: opacity 0.25s;
+            border-radius: 20px;
+        }
+
+        .option-card.lost   { --c: var(--amber);  --cg: var(--amber-glow);  }
+        .option-card.found  { --c: var(--teal);   --cg: var(--teal-glow);   }
+        .option-card.browse { --c: var(--violet); --cg: var(--violet-glow); }
+
+        .option-card::before {
+            background: radial-gradient(ellipse at 50% 0%, var(--cg) 0%, transparent 70%);
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--c);
+            box-shadow: 0 12px 36px -8px color-mix(in srgb, var(--c) 30%, transparent);
+        }
+
+        .option-card:hover::before { opacity: 1; }
+        .option-card:active { transform: translateY(-2px); }
+
+        .opt-icon {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            border: 1px solid var(--c);
+            background: var(--cg);
+            display: grid; place-items: center;
+            font-size: 24px;
+            position: relative; z-index: 1;
+            transition: box-shadow 0.22s;
+        }
+
+        .option-card:hover .opt-icon {
+            box-shadow: 0 0 18px color-mix(in srgb, var(--c) 40%, transparent);
+        }
+
+        .opt-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            position: relative; z-index: 1;
+        }
+
+        .opt-desc {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.55;
+            position: relative; z-index: 1;
+        }
+
+        .opt-arrow {
+            margin-top: 4px;
+            font-size: 0.75rem;
+            color: var(--c);
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.2s, transform 0.2s;
+            position: relative; z-index: 1;
+        }
+
+        .option-card:hover .opt-arrow { opacity: 1; transform: translateY(0); }
+
+        /* ── Inner Views ── */
+        .inner-wrapper {
+            max-width: 760px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 16px;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.825rem;
+            cursor: pointer;
+            transition: color 0.18s, border-color 0.18s;
+            align-self: flex-start;
+        }
+
+        .back-btn:hover { color: var(--text); border-color: var(--text); }
+
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 32px;
-            animation: fadeUp 0.45s ease both;
+            animation: fadeUp 0.4s ease both;
         }
-
-        .card:nth-child(2) { animation-delay: 0.1s; }
 
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(16px); }
@@ -87,8 +210,7 @@
 
         .card-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.15rem;
-            color: var(--text);
+            font-size: 1.1rem;
             margin-bottom: 24px;
             display: flex;
             align-items: center;
@@ -99,30 +221,17 @@
             content: '';
             display: inline-block;
             width: 4px; height: 18px;
-            background: var(--accent);
             border-radius: 4px;
+            background: var(--bar-color, var(--amber));
         }
 
-        /* ── Form ── */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group.full { grid-column: 1 / -1; }
 
         label {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
+            font-size: 0.72rem; font-weight: 500;
+            letter-spacing: 0.07em; text-transform: uppercase;
             color: var(--muted);
         }
 
@@ -139,184 +248,247 @@
             width: 100%;
         }
 
-        input[type="text"]:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-
         input[type="text"]::placeholder { color: var(--muted); }
 
-        .form-footer {
-            margin-top: 24px;
-            display: flex;
-            justify-content: flex-end;
-        }
+        #view-lost  input[type="text"]:focus { border-color: var(--amber);  box-shadow: 0 0 0 3px var(--amber-glow); }
+        #view-found input[type="text"]:focus { border-color: var(--teal);   box-shadow: 0 0 0 3px var(--teal-glow);  }
+
+        .form-footer { margin-top: 24px; display: flex; justify-content: flex-end; }
 
         button[type="submit"] {
-            background: var(--accent);
-            color: #0f1117;
             font-family: 'DM Sans', sans-serif;
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 0.875rem; font-weight: 600;
             letter-spacing: 0.02em;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 28px;
-            cursor: pointer;
+            border: none; border-radius: 10px;
+            padding: 12px 28px; cursor: pointer;
+            color: #0f1117;
             transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
-            box-shadow: 0 4px 18px rgba(232,160,69,0.25);
         }
 
-        button[type="submit"]:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 24px rgba(232,160,69,0.35);
-        }
+        #view-lost  button[type="submit"] { background: var(--amber); box-shadow: 0 4px 18px rgba(232,160,69,0.25); }
+        #view-found button[type="submit"] { background: var(--teal);  box-shadow: 0 4px 18px rgba(62,207,178,0.22); }
 
+        button[type="submit"]:hover  { opacity: 0.9; transform: translateY(-1px); }
         button[type="submit"]:active { transform: translateY(0); }
 
-        /* ── Table ── */
+        /* ── Tables ── */
         .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        thead tr { border-bottom: 1px solid var(--border); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.875rem;
-        }
-
-        thead tr {
-            background: rgba(232,160,69,0.08);
-            border-bottom: 1px solid var(--border);
-        }
+        #view-lost   thead tr      { background: rgba(232,160,69,0.07); }
+        #view-found  thead tr      { background: rgba(62,207,178,0.07); }
+        .browse-lost-card  thead tr { background: rgba(232,160,69,0.07); }
+        .browse-found-card thead tr { background: rgba(62,207,178,0.07); }
 
         thead th {
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 0.72rem;
-            font-weight: 500;
-            letter-spacing: 0.07em;
-            text-transform: uppercase;
-            color: var(--accent);
+            padding: 12px 16px; text-align: left;
+            font-size: 0.72rem; font-weight: 500;
+            letter-spacing: 0.07em; text-transform: uppercase;
             white-space: nowrap;
         }
 
-        tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background 0.15s;
-        }
+        #view-lost   thead th       { color: var(--amber); }
+        #view-found  thead th       { color: var(--teal);  }
+        .browse-lost-card  thead th { color: var(--amber); }
+        .browse-found-card thead th { color: var(--teal);  }
 
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
         tbody tr:last-child { border-bottom: none; }
-
         tbody tr:hover { background: rgba(255,255,255,0.03); }
+        tbody td { padding: 13px 16px; color: var(--text); vertical-align: middle; }
+        tbody td:first-child { color: var(--muted); font-size: 0.8rem; font-weight: 500; }
 
-        tbody td {
-            padding: 13px 16px;
-            color: var(--text);
-            vertical-align: middle;
-        }
-
-        tbody td:first-child {
-            color: var(--muted);
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        /* Status badge */
-        tbody td:nth-child(5) span,
-        tbody td:nth-child(5) {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
+        .lost-status {
+            display: inline-block; padding: 3px 10px;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 500;
             background: rgba(232,160,69,0.12);
-            color: var(--accent);
+            color: var(--amber);
             border: 1px solid rgba(232,160,69,0.25);
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: var(--muted);
-            font-size: 0.875rem;
+        .section-divider {
+            display: flex; align-items: center; gap: 16px;
+            color: var(--muted); font-size: 0.72rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+        }
+
+        .section-divider::before, .section-divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
         }
     </style>
 </head>
 <body>
 
-<div class="page-wrapper">
-
-    <!-- Header -->
-    <div class="page-header">
-        <div class="icon">🔍</div>
-        <div>
-            <h1>Lost &amp; Found</h1>
-            <p>Track and manage reported lost items</p>
-        </div>
+<div class="page-header">
+    <div class="icon">🔍</div>
+    <div>
+        <h1>Lost &amp; Found</h1>
+        <p>Track and manage reported items</p>
     </div>
-
-    <!-- Form Card -->
-    <div class="card">
-        <div class="card-title">Report Lost Item</div>
-
-        <form action="/add-item" method="post">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="name">Item Name</label>
-                    <input type="text" id="name" name="name" placeholder="e.g. Black Wallet">
-                </div>
-                <div class="form-group">
-                    <label for="reportedBy">Reported By</label>
-                    <input type="text" id="reportedBy" name="reportedBy" placeholder="Your name">
-                </div>
-                <div class="form-group">
-                    <label for="location">Location</label>
-                    <input type="text" id="location" name="location" placeholder="Where was it lost?">
-                </div>
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <input type="text" id="description" name="description" placeholder="Brief description">
-                </div>
-            </div>
-
-            <div class="form-footer">
-                <button type="submit">Submit Report</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Table Card -->
-    <div class="card">
-        <div class="card-title">All Lost Items</div>
-
-        <div class="table-scroll">
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th>Reported By</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${items}">
-                    <td th:text="${item.id}"></td>
-                    <td th:text="${item.name}"></td>
-                    <td th:text="${item.description}"></td>
-                    <td th:text="${item.location}"></td>
-                    <td th:text="${item.status}"></td>
-                    <td th:text="${item.reportedBy}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 </div>
+
+<!-- ══ LANDING ══ -->
+<div id="view-landing" class="view active">
+    <div class="page-wrapper">
+        <p class="landing-subtitle">What would you like to do?</p>
+        <div class="option-grid">
+
+            <div class="option-card lost" onclick="showView('view-lost')">
+                <div class="opt-icon">🪪</div>
+                <div class="opt-label">Report Lost Item</div>
+                <div class="opt-desc">Submit a report for something you've lost and can't find.</div>
+                <div class="opt-arrow">Get started →</div>
+            </div>
+
+            <div class="option-card found" onclick="showView('view-found')">
+                <div class="opt-icon">📦</div>
+                <div class="opt-label">Report Found Item</div>
+                <div class="opt-desc">Let others know you've found something that isn't yours.</div>
+                <div class="opt-arrow">Get started →</div>
+            </div>
+
+            <div class="option-card browse" onclick="showView('view-browse')">
+                <div class="opt-icon">📋</div>
+                <div class="opt-label">Browse All Items</div>
+                <div class="opt-desc">View all reported lost and found items in one place.</div>
+                <div class="opt-arrow">Browse →</div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ══ REPORT LOST ══ -->
+<div id="view-lost" class="view">
+    <div class="inner-wrapper">
+        <button class="back-btn" onclick="showView('view-landing')">← Back</button>
+        <div class="card">
+            <div class="card-title">Report Lost Item</div>
+            <form action="/add-item" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Item Name</label>
+                        <input type="text" id="name" name="name" placeholder="e.g. Black Wallet">
+                    </div>
+                    <div class="form-group">
+                        <label for="reportedBy">Reported By</label>
+                        <input type="text" id="reportedBy" name="reportedBy" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" placeholder="Where was it lost?">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" name="description" placeholder="Brief description">
+                    </div>
+                </div>
+                <div class="form-footer">
+                    <button type="submit">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ══ REPORT FOUND ══ -->
+<div id="view-found" class="view">
+    <div class="inner-wrapper">
+        <button class="back-btn" onclick="showView('view-landing')">← Back</button>
+        <div class="card">
+            <div class="card-title" style="--bar-color: var(--teal)">Report Found Item</div>
+            <form action="/found-items" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="found-name">Item Name</label>
+                        <input type="text" id="found-name" name="name" placeholder="e.g. Blue Umbrella">
+                    </div>
+                    <div class="form-group">
+                        <label for="found-location">Location</label>
+                        <input type="text" id="found-location" name="location" placeholder="Where was it found?">
+                    </div>
+                    <div class="form-group full">
+                        <label for="found-description">Description</label>
+                        <input type="text" id="found-description" name="description" placeholder="Brief description">
+                    </div>
+                </div>
+                <div class="form-footer">
+                    <button type="submit">Submit Found Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ══ BROWSE ALL ══ -->
+<div id="view-browse" class="view">
+    <div class="inner-wrapper">
+        <button class="back-btn" onclick="showView('view-landing')">← Back</button>
+
+        <div class="card browse-lost-card">
+            <div class="card-title">All Lost Items</div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Description</th>
+                        <th>Location</th><th>Status</th><th>Reported By</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${items}">
+                        <td th:text="${item.id}"></td>
+                        <td th:text="${item.name}"></td>
+                        <td th:text="${item.description}"></td>
+                        <td th:text="${item.location}"></td>
+                        <td><span class="lost-status" th:text="${item.status}"></span></td>
+                        <td th:text="${item.reportedBy}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-divider">Found Items</div>
+
+        <div class="card browse-found-card">
+            <div class="card-title" style="--bar-color: var(--teal)">All Found Items</div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Description</th><th>Location</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${foundItems}">
+                        <td th:text="${item.id}"></td>
+                        <td th:text="${item.name}"></td>
+                        <td th:text="${item.description}"></td>
+                        <td th:text="${item.location}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function showView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        const next = document.getElementById(id);
+        next.classList.add('active');
+        next.querySelectorAll('.card, .option-card').forEach(el => {
+            el.style.animation = 'none';
+            el.offsetHeight;
+            el.style.animation = '';
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
 
 </body>
 </html>
-```

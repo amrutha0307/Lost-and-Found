@@ -2,6 +2,8 @@ package com.lostfound.lostfound.controller;
 
 import com.lostfound.lostfound.model.LostItem;
 import com.lostfound.lostfound.service.LostItemService;
+import com.lostfound.lostfound.service.FoundItemService; // ✅ MISSING IMPORT
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,9 +15,13 @@ public class ViewController {
     @Autowired
     private LostItemService service;
 
+    @Autowired
+    private FoundItemService foundItemService;
+
     @GetMapping("/")
     public String viewPage(Model model) {
         model.addAttribute("items", service.getAllLostItems());
+        model.addAttribute("foundItems", foundItemService.getAllFoundItems());
         return "lost-items";
     }
 
@@ -30,7 +36,7 @@ public class ViewController {
         item.setDescription(description);
         item.setLocation(location);
         item.setReportedBy(reportedBy);
-        item.setStatus("REPORTED"); // ✅ ensure status is set
+        item.setStatus("REPORTED");
 
         service.saveLostItem(item);
 
