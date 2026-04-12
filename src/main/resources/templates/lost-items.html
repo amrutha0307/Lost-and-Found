@@ -45,7 +45,6 @@
             padding-bottom: 24px;
             border-bottom: 1px solid var(--border);
         }
-
         .page-header .icon {
             width: 44px; height: 44px;
             background: var(--amber-glow);
@@ -54,31 +53,26 @@
             display: grid; place-items: center;
             font-size: 20px; flex-shrink: 0;
         }
-
         .page-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.75rem;
             letter-spacing: -0.02em;
         }
-
         .page-header p { font-size: 0.825rem; color: var(--muted); margin-top: 2px; }
 
         /* ── Landing ── */
         #view-landing .page-wrapper { max-width: 760px; margin: 0 auto; }
-
         .landing-subtitle {
             text-align: center;
             color: var(--muted);
             font-size: 0.875rem;
             margin-bottom: 36px;
         }
-
         .option-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
         }
-
         @media (max-width: 580px) { .option-grid { grid-template-columns: 1fr; } }
 
         .option-card {
@@ -98,33 +92,25 @@
             overflow: hidden;
             user-select: none;
         }
-
         .option-card:nth-child(1) { animation-delay: 0.05s; }
         .option-card:nth-child(2) { animation-delay: 0.13s; }
         .option-card:nth-child(3) { animation-delay: 0.21s; }
-
+        .option-card.lost   { --c: var(--amber);  --cg: var(--amber-glow);  }
+        .option-card.found  { --c: var(--teal);   --cg: var(--teal-glow);   }
+        .option-card.browse { --c: var(--violet); --cg: var(--violet-glow); }
         .option-card::before {
             content: '';
             position: absolute; inset: 0;
             opacity: 0;
             transition: opacity 0.25s;
             border-radius: 20px;
-        }
-
-        .option-card.lost   { --c: var(--amber);  --cg: var(--amber-glow);  }
-        .option-card.found  { --c: var(--teal);   --cg: var(--teal-glow);   }
-        .option-card.browse { --c: var(--violet); --cg: var(--violet-glow); }
-
-        .option-card::before {
             background: radial-gradient(ellipse at 50% 0%, var(--cg) 0%, transparent 70%);
         }
-
         .option-card:hover {
             transform: translateY(-5px);
             border-color: var(--c);
             box-shadow: 0 12px 36px -8px color-mix(in srgb, var(--c) 30%, transparent);
         }
-
         .option-card:hover::before { opacity: 1; }
         .option-card:active { transform: translateY(-2px); }
 
@@ -138,34 +124,17 @@
             position: relative; z-index: 1;
             transition: box-shadow 0.22s;
         }
-
         .option-card:hover .opt-icon {
             box-shadow: 0 0 18px color-mix(in srgb, var(--c) 40%, transparent);
         }
-
-        .opt-label {
-            font-family: 'Playfair Display', serif;
-            font-size: 1rem;
-            position: relative; z-index: 1;
-        }
-
-        .opt-desc {
-            font-size: 0.78rem;
-            color: var(--muted);
-            line-height: 1.55;
-            position: relative; z-index: 1;
-        }
-
+        .opt-label { font-family: 'Playfair Display', serif; font-size: 1rem; position: relative; z-index: 1; }
+        .opt-desc  { font-size: 0.78rem; color: var(--muted); line-height: 1.55; position: relative; z-index: 1; }
         .opt-arrow {
-            margin-top: 4px;
-            font-size: 0.75rem;
-            color: var(--c);
-            opacity: 0;
-            transform: translateY(4px);
+            margin-top: 4px; font-size: 0.75rem; color: var(--c);
+            opacity: 0; transform: translateY(4px);
             transition: opacity 0.2s, transform 0.2s;
             position: relative; z-index: 1;
         }
-
         .option-card:hover .opt-arrow { opacity: 1; transform: translateY(0); }
 
         /* ── Inner Views ── */
@@ -176,7 +145,6 @@
             flex-direction: column;
             gap: 28px;
         }
-
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -192,7 +160,6 @@
             transition: color 0.18s, border-color 0.18s;
             align-self: flex-start;
         }
-
         .back-btn:hover { color: var(--text); border-color: var(--text); }
 
         .card {
@@ -216,7 +183,6 @@
             align-items: center;
             gap: 10px;
         }
-
         .card-title::before {
             content: '';
             display: inline-block;
@@ -247,15 +213,14 @@
             transition: border-color 0.2s, box-shadow 0.2s;
             width: 100%;
         }
-
         input[type="text"]::placeholder { color: var(--muted); }
 
-        #view-lost  input[type="text"]:focus { border-color: var(--amber);  box-shadow: 0 0 0 3px var(--amber-glow); }
-        #view-found input[type="text"]:focus { border-color: var(--teal);   box-shadow: 0 0 0 3px var(--teal-glow);  }
+        #view-lost  input[type="text"]:focus { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-glow); }
+        #view-found input[type="text"]:focus { border-color: var(--teal);  box-shadow: 0 0 0 3px var(--teal-glow);  }
 
         .form-footer { margin-top: 24px; display: flex; justify-content: flex-end; }
 
-        button[type="submit"] {
+        button[type="button"].primary {
             font-family: 'DM Sans', sans-serif;
             font-size: 0.875rem; font-weight: 600;
             letter-spacing: 0.02em;
@@ -264,35 +229,25 @@
             color: #0f1117;
             transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
         }
-
-        #view-lost  button[type="submit"] { background: var(--amber); box-shadow: 0 4px 18px rgba(232,160,69,0.25); }
-        #view-found button[type="submit"] { background: var(--teal);  box-shadow: 0 4px 18px rgba(62,207,178,0.22); }
-
-        button[type="submit"]:hover  { opacity: 0.9; transform: translateY(-1px); }
-        button[type="submit"]:active { transform: translateY(0); }
+        #view-lost  button[type="button"].primary { background: var(--amber); box-shadow: 0 4px 18px rgba(232,160,69,0.25); }
+        #view-found button[type="button"].primary { background: var(--teal);  box-shadow: 0 4px 18px rgba(62,207,178,0.22); }
+        button[type="button"].primary:hover  { opacity: 0.9; transform: translateY(-1px); }
+        button[type="button"].primary:active { transform: translateY(0); }
 
         /* ── Tables ── */
         .table-scroll { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
         thead tr { border-bottom: 1px solid var(--border); }
-
-        #view-lost   thead tr      { background: rgba(232,160,69,0.07); }
-        #view-found  thead tr      { background: rgba(62,207,178,0.07); }
         .browse-lost-card  thead tr { background: rgba(232,160,69,0.07); }
         .browse-found-card thead tr { background: rgba(62,207,178,0.07); }
-
         thead th {
             padding: 12px 16px; text-align: left;
             font-size: 0.72rem; font-weight: 500;
             letter-spacing: 0.07em; text-transform: uppercase;
             white-space: nowrap;
         }
-
-        #view-lost   thead th       { color: var(--amber); }
-        #view-found  thead th       { color: var(--teal);  }
         .browse-lost-card  thead th { color: var(--amber); }
         .browse-found-card thead th { color: var(--teal);  }
-
         tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
         tbody tr:last-child { border-bottom: none; }
         tbody tr:hover { background: rgba(255,255,255,0.03); }
@@ -312,7 +267,6 @@
             color: var(--muted); font-size: 0.72rem;
             letter-spacing: 0.1em; text-transform: uppercase;
         }
-
         .section-divider::before, .section-divider::after {
             content: ''; flex: 1; height: 1px; background: var(--border);
         }
@@ -365,29 +319,27 @@
         <button class="back-btn" onclick="showView('view-landing')">← Back</button>
         <div class="card">
             <div class="card-title">Report Lost Item</div>
-            <form action="/add-item" method="post">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="name">Item Name</label>
-                        <input type="text" id="name" name="name" placeholder="e.g. Black Wallet">
-                    </div>
-                    <div class="form-group">
-                        <label for="reportedBy">Reported By</label>
-                        <input type="text" id="reportedBy" name="reportedBy" placeholder="Your name">
-                    </div>
-                    <div class="form-group">
-                        <label for="location">Location</label>
-                        <input type="text" id="location" name="location" placeholder="Where was it lost?">
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <input type="text" id="description" name="description" placeholder="Brief description">
-                    </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="lost-name">Item Name</label>
+                    <input type="text" id="lost-name" placeholder="e.g. Black Wallet">
                 </div>
-                <div class="form-footer">
-                    <button type="submit">Submit Report</button>
+                <div class="form-group">
+                    <label for="lost-reportedBy">Reported By</label>
+                    <input type="text" id="lost-reportedBy" placeholder="Your name">
                 </div>
-            </form>
+                <div class="form-group">
+                    <label for="lost-location">Location</label>
+                    <input type="text" id="lost-location" placeholder="Where was it lost?">
+                </div>
+                <div class="form-group">
+                    <label for="lost-description">Description</label>
+                    <input type="text" id="lost-description" placeholder="Brief description">
+                </div>
+            </div>
+            <div class="form-footer">
+                <button type="button" class="primary" onclick="submitLostItem()">Submit Report</button>
+            </div>
         </div>
     </div>
 </div>
@@ -398,25 +350,23 @@
         <button class="back-btn" onclick="showView('view-landing')">← Back</button>
         <div class="card">
             <div class="card-title" style="--bar-color: var(--teal)">Report Found Item</div>
-            <form action="/found-items" method="post">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="found-name">Item Name</label>
-                        <input type="text" id="found-name" name="name" placeholder="e.g. Blue Umbrella">
-                    </div>
-                    <div class="form-group">
-                        <label for="found-location">Location</label>
-                        <input type="text" id="found-location" name="location" placeholder="Where was it found?">
-                    </div>
-                    <div class="form-group full">
-                        <label for="found-description">Description</label>
-                        <input type="text" id="found-description" name="description" placeholder="Brief description">
-                    </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="found-name">Item Name</label>
+                    <input type="text" id="found-name" placeholder="e.g. Blue Umbrella">
                 </div>
-                <div class="form-footer">
-                    <button type="submit">Submit Found Item</button>
+                <div class="form-group">
+                    <label for="found-location">Location</label>
+                    <input type="text" id="found-location" placeholder="Where was it found?">
                 </div>
-            </form>
+                <div class="form-group full">
+                    <label for="found-description">Description</label>
+                    <input type="text" id="found-description" placeholder="Brief description">
+                </div>
+            </div>
+            <div class="form-footer">
+                <button type="button" class="primary" onclick="submitFoundItem()">Submit Found Item</button>
+            </div>
         </div>
     </div>
 </div>
@@ -472,7 +422,6 @@
                 </table>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -487,6 +436,91 @@
             el.style.animation = '';
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ---------- LOST ---------- */
+    async function submitLostItem() {
+        const name = document.getElementById('lost-name').value;
+        const reportedBy = document.getElementById('lost-reportedBy').value;
+        const location = document.getElementById('lost-location').value;
+        const description = document.getElementById('lost-description').value;
+
+        const res = await fetch('/add-item', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, reportedBy, location, description })
+        });
+
+        const saved = await res.json();
+
+        // GET found items
+        const foundRes = await fetch('/found-items');
+        const foundItems = await foundRes.json();
+
+        // MATCH
+        const foundMatch = foundItems.find(f =>
+            f.name.toLowerCase().includes(name.toLowerCase()) ||
+            name.toLowerCase().includes(f.name.toLowerCase())
+        );
+
+        if (foundMatch) {
+            await fetch('/api/matches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lostItemId: saved.id,
+                    foundItemId: foundMatch.id
+                })
+            });
+
+            alert("🎉 MATCH FOUND!");
+        } else {
+            alert("Saved. No match yet.");
+        }
+
+        window.location.reload();
+    }
+
+    /* ---------- FOUND ---------- */
+    async function submitFoundItem() {
+        const name = document.getElementById('found-name').value;
+        const location = document.getElementById('found-location').value;
+        const description = document.getElementById('found-description').value;
+
+        const res = await fetch('/found-items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, location, description })
+        });
+
+        const saved = await res.json();
+
+        // GET lost items
+        const lostRes = await fetch('/lost-items');
+        const lostItems = await lostRes.json();
+
+        // MATCH
+        const lostMatch = lostItems.find(l =>
+            l.name.toLowerCase().includes(name.toLowerCase()) ||
+            name.toLowerCase().includes(l.name.toLowerCase())
+        );
+
+        if (lostMatch) {
+            await fetch('/api/matches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lostItemId: lostMatch.id,
+                    foundItemId: saved.id
+                })
+            });
+
+            alert("🎉 MATCH FOUND!");
+        } else {
+            alert("Saved. No match yet.");
+        }
+
+        window.location.reload();
     }
 </script>
 

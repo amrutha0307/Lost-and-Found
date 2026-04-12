@@ -2,29 +2,28 @@ package com.lostfound.lostfound.controller;
 
 import com.lostfound.lostfound.model.FoundItem;
 import com.lostfound.lostfound.service.FoundItemService;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller; // ✅ IMPORTANT
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.List;
+
+@RestController
 @RequestMapping("/found-items")
 public class FoundItemController {
 
     @Autowired
     private FoundItemService service;
 
+    // ✅ FIXED: JSON support
     @PostMapping
-    public String saveItem(@RequestParam String name,
-                           @RequestParam String description,
-                           @RequestParam String location) {
+    public FoundItem saveItem(@RequestBody FoundItem item) {
+        return service.saveFoundItem(item);
+    }
 
-        FoundItem item = new FoundItem();
-        item.setName(name);
-        item.setDescription(description);
-        item.setLocation(location);
-
-        service.saveFoundItem(item);
-
-        return "redirect:/"; // ✅ NOW WORKS
+    // ✅ ADD THIS (needed for matching)
+    @GetMapping
+    public List<FoundItem> getAllItems() {
+        return service.getAllFoundItems();
     }
 }

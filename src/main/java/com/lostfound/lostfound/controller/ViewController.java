@@ -2,12 +2,14 @@ package com.lostfound.lostfound.controller;
 
 import com.lostfound.lostfound.model.LostItem;
 import com.lostfound.lostfound.service.LostItemService;
-import com.lostfound.lostfound.service.FoundItemService; // ✅ MISSING IMPORT
+import com.lostfound.lostfound.service.FoundItemService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 public class ViewController {
@@ -25,21 +27,12 @@ public class ViewController {
         return "lost-items";
     }
 
+    // ✅ Save lost item (JSON)
     @PostMapping("/add-item")
-    public String addItem(@RequestParam String name,
-                          @RequestParam String description,
-                          @RequestParam String location,
-                          @RequestParam String reportedBy) {
-
-        LostItem item = new LostItem();
-        item.setName(name);
-        item.setDescription(description);
-        item.setLocation(location);
-        item.setReportedBy(reportedBy);
+    @ResponseBody
+    public LostItem addItem(@RequestBody LostItem item) {
         item.setStatus("REPORTED");
-
-        service.saveLostItem(item);
-
-        return "redirect:/";
+        return service.saveLostItem(item);
     }
+
 }
