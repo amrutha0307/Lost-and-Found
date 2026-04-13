@@ -1,34 +1,29 @@
 package com.lostfound.lostfound.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import com.lostfound.lostfound.dto.ClaimRequestDto;
-import com.lostfound.lostfound.dto.ClaimResponseDto;
+import com.lostfound.lostfound.dto.ClaimDTO;
+import com.lostfound.lostfound.model.Claim;
 import com.lostfound.lostfound.service.ClaimService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/claims")
+@RequestMapping("/claims")
 public class ClaimController {
 
-    private final ClaimService claimService;
+    @Autowired
+    private ClaimService service;
 
-    public ClaimController(ClaimService claimService) {
-        this.claimService = claimService;
-    }
-
+    // CREATE CLAIM
     @PostMapping
-    public ResponseEntity<ClaimResponseDto> createClaim(@RequestBody ClaimRequestDto request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(claimService.createClaim(request));
+    public Claim createClaim(@RequestBody ClaimDTO dto) {
+        return service.createClaim(dto);
     }
 
-    @PutMapping("/{id}/verify")
-    public ResponseEntity<ClaimResponseDto> verifyClaim(
-            @PathVariable Long id,
-            @RequestParam String status) {
-
-        return ResponseEntity.ok(claimService.verifyClaim(id, status));
+    // VERIFY CLAIM
+    @PutMapping("/verify/{id}")
+    public Claim verifyClaim(@PathVariable Long id, @RequestParam String status) {
+        return service.verifyClaim(id, status);
     }
 }

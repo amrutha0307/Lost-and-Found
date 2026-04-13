@@ -1,10 +1,7 @@
 package com.lostfound.lostfound.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import com.lostfound.lostfound.model.Claim;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
 public interface ClaimRepository extends JpaRepository<Claim, Long> {
 }

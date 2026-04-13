@@ -1,59 +1,40 @@
 package com.lostfound.lostfound.service.impl;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.lostfound.lostfound.dto.ClaimRequestDto;
-import com.lostfound.lostfound.dto.ClaimResponseDto;
+import com.lostfound.lostfound.dto.ClaimDTO;
 import com.lostfound.lostfound.model.Claim;
 import com.lostfound.lostfound.repository.ClaimRepository;
 import com.lostfound.lostfound.service.ClaimService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
 @Service
-@Transactional
 public class ClaimServiceImpl implements ClaimService {
 
-    private final ClaimRepository claimRepository;
+    @Autowired
+    private ClaimRepository repository;
 
-    public ClaimServiceImpl(ClaimRepository claimRepository) {
-        this.claimRepository = claimRepository;
+    @Override
+    public Claim createClaim(ClaimDTO dto) {
+        Claim claim = new Claim();
+        claim.setMatchId(dto.getMatchId());
+        claim.setUserId(dto.getUserId());
+        claim.setProof(dto.getProof());
+        claim.setStatus("PENDING");
+
+        return repository.save(claim);
     }
 
     @Override
-    public ClaimResponseDto createClaim(ClaimRequestDto request) {
+    public Claim verifyClaim(Long id, String status) {
+        Claim claim = repository.findById(id).orElse(null);
 
-        Claim claim = new Claim(
-                request.getMatchId(),
-                request.getUserId(),
-                request.getProof(),
-                "PENDING"
-        );
+        if (claim != null) {
+            claim.setStatus(status); // APPROVED or REJECTED
+            return repository.save(claim);
+        }
 
-        Claim saved = claimRepository.save(claim);
-
-        return toDto(saved);
-    }
-
-    @Override
-    public ClaimResponseDto verifyClaim(Long id, String status) {
-
-        Claim claim = claimRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Claim not found: " + id));
-
-        claim.setStatus(status);
-
-        Claim saved = claimRepository.save(claim);
-
-        return toDto(saved);
-    }
-
-    private ClaimResponseDto toDto(Claim claim) {
-        return new ClaimResponseDto(
-                claim.getId(),
-                claim.getMatchId(),
-                claim.getUserId(),
-                claim.getProof(),
-                claim.getStatus()
-        );
+        return null;
     }
 }

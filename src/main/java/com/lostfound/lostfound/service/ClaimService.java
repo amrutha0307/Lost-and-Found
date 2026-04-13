@@ -1,11 +1,13 @@
 package com.lostfound.lostfound.service;
 
-import com.lostfound.lostfound.dto.ClaimRequestDto;
-import com.lostfound.lostfound.dto.ClaimResponseDto;
+import com.lostfound.lostfound.dto.ClaimDTO;
+import com.lostfound.lostfound.model.Claim;
+import java.util.List;
 
 public interface ClaimService {
 
-    ClaimResponseDto createClaim(ClaimRequestDto request);
+    Claim createClaim(ClaimDTO dto);
 
-    ClaimResponseDto verifyClaim(Long id, String status);
+    Claim verifyClaim(Long id, String status);
+
 }
