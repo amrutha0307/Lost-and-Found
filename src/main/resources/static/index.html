@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lost & Found Login</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="auth-layout">
+      <article class="hero-panel">
+        <span class="eyebrow">Campus Lost & Found</span>
+        <h1>Login to access the lost and found dashboard.</h1>
+        <p>
+          Use the existing app flow to enter as either a user or an admin. After login,
+          the interface redirects directly to the correct dashboard view.
+        </p>
+
+        <div class="feature-list">
+          <div class="feature-item">Track lost items, found items, and claim activity in one place.</div>
+          <div class="feature-item">Switch role-based access without introducing database-backed login.</div>
+          <div class="feature-item">Keep the UI consistent inside the current Spring Boot project.</div>
+        </div>
+      </article>
+
+      <article class="form-panel">
+        <div class="brand-mark">LF</div>
+        <h2>Sign in</h2>
+        <p>Choose a role and use the matching demo credentials.</p>
+
+        <form id="loginForm" class="login-form">
+          <div class="field-group">
+            <label for="role">Role</label>
+            <select id="role" required>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="username">Username</label>
+            <input id="username" type="text" placeholder="Enter username" required>
+          </div>
+
+          <div class="field-group">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="Enter password" required>
+          </div>
+
+          <div class="button-row">
+            <button class="primary-btn" type="submit">Login</button>
+          </div>
+
+          <p id="loginStatus" class="status-message" aria-live="polite"></p>
+        </form>
+
+        <div class="credential-box">
+          <strong>Demo credentials</strong>
+          <div class="credential-note">User: <code>user</code> / <code>user123</code></div>
+          <div class="credential-note">Admin: <code>admin</code> / <code>admin123</code></div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>
