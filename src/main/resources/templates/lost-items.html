@@ -417,6 +417,13 @@
                         <td th:text="${item.name}"></td>
                         <td th:text="${item.description}"></td>
                         <td th:text="${item.location}"></td>
+                        <td>
+                            <span id="status-[[${item.id}]]">--</span><br>
+                            <button th:id="'btn-' + ${item.id}"
+                                    th:attr="onclick=|claimItem(${item.id})|">
+                                Claim
+                            </button>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -522,6 +529,38 @@
 
         window.location.reload();
     }
+    async function claimItem(foundItemId) {
+        console.log("CLICKED:", foundItemId);
+
+        const matchRes = await fetch('/api/matches');
+        const matches = await matchRes.json();
+
+        const match = matches.find(m => m.foundItemId === foundItemId);
+
+        if (!match) {
+            alert("No match found");
+            return;
+        }
+
+        await fetch('/claims', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                matchId: match.id,
+                userId: 1,
+                proof: "Claimed via UI"
+            })
+        });
+
+        // 👉 ONLY DISABLE BUTTON
+        const btn = document.getElementById("btn-" + foundItemId);
+        btn.disabled = true;
+        btn.innerText = "Claimed ✔";
+
+        alert("✅ Claim submitted!");
+
+    }
+
 </script>
 
 </body>
