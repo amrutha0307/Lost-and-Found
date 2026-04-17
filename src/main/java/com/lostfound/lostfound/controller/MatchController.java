@@ -45,4 +45,10 @@ public class MatchController {
     public ResponseEntity<MatchResponseDto> confirmMatch(@PathVariable("id") Long id) {
         return ResponseEntity.ok(matchService.confirmMatch(id));
     }
+
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<MatchResponseDto> rejectMatch(@PathVariable Long id) {
+        return ResponseEntity.ok(matchService.rejectMatch(id));
+    }
+
 }

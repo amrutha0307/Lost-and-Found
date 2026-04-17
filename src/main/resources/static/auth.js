@@ -106,7 +106,7 @@ function initializeLoginPage() {
     status.textContent = "Login successful. Redirecting to dashboard...";
     status.className = "status-message success";
 
-    window.location.href = "dashboard.html";
+    window.location.href = "/dashboard";
   });
 }
 

@@ -1,70 +1,84 @@
 package com.lostfound.lostfound.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.lostfound.lostfound.dto.MatchRequestDto;
 import com.lostfound.lostfound.dto.MatchResponseDto;
 import com.lostfound.lostfound.model.Match;
 import com.lostfound.lostfound.repository.MatchRepository;
 import com.lostfound.lostfound.service.MatchService;
 
-@Service
-@Transactional
-public class MatchServiceImpl implements MatchService {
-    private static final Logger log = LoggerFactory.getLogger(MatchServiceImpl.class);
-    private final MatchRepository matchRepository;
+import org.springframework.stereotype.Service;
 
-    public MatchServiceImpl(MatchRepository matchRepository) {
-        this.matchRepository = matchRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class MatchServiceImpl implements MatchService {
+
+    private final MatchRepository repository;
+
+    public MatchServiceImpl(MatchRepository repository) {
+        this.repository = repository;
     }
 
     @Override
     public List<MatchResponseDto> getAllMatches() {
-        return matchRepository.findAll().stream()
-                .map(this::toDto)
+        return repository.findAll()
+                .stream()
+                .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public MatchResponseDto getMatchById(Long matchId) {
-        return matchRepository.findById(matchId)
-                .map(this::toDto)
-                .orElseThrow(() -> new IllegalArgumentException("Match not found: " + matchId));
+    public MatchResponseDto getMatchById(Long id) {
+        Match match = repository.findById(id).orElseThrow();
+        return mapToDto(match);
     }
 
     @Override
     public MatchResponseDto createMatch(MatchRequestDto request) {
-        Match match = new Match(request.getLostItemId(), request.getFoundItemId(), "PENDING");
-        Match saved = matchRepository.save(match);
-        log.info("Created new match request for lostItemId={} and foundItemId={}", request.getLostItemId(), request.getFoundItemId());
-        return toDto(saved);
+        Match match = new Match();
+        match.setLostItemId(request.getLostItemId());
+        match.setFoundItemId(request.getFoundItemId());
+
+        // ✅ FIXED
+        match.setStatus("PENDING");
+
+        Match saved = repository.save(match);
+        return mapToDto(saved);
     }
 
     @Override
-    public MatchResponseDto confirmMatch(Long matchId) {
-        Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new IllegalArgumentException("Match not found: " + matchId));
+    public MatchResponseDto confirmMatch(Long id) {
+        Match match = repository.findById(id).orElseThrow();
 
-        match.setMatchStatus("CONFIRMED");
-        Match saved = matchRepository.save(match);
-        sendMatchNotification(saved);
-        return toDto(saved);
+        // ✅ FIXED
+        match.setStatus("APPROVED");
+
+        repository.save(match);
+        return mapToDto(match);
     }
 
-    private void sendMatchNotification(Match match) {
-        String notification = String.format(
-                "Match confirmed for lost item %d and found item %d. Status=%s",
-                match.getLostItemId(), match.getFoundItemId(), match.getMatchStatus());
-        log.info("[MatchNotification] {}", notification);
+    @Override
+    public MatchResponseDto rejectMatch(Long id) {
+        Match match = repository.findById(id).orElseThrow();
+
+        // ✅ FIXED
+        match.setStatus("REJECTED");
+
+        repository.save(match);
+        return mapToDto(match);
     }
 
-    private MatchResponseDto toDto(Match match) {
-        return new MatchResponseDto(match.getId(), match.getLostItemId(), match.getFoundItemId(), match.getMatchStatus());
+    // ✅ HELPER
+    private MatchResponseDto mapToDto(Match match) {
+        MatchResponseDto dto = new MatchResponseDto();
+        dto.setId(match.getId());
+        dto.setLostItemId(match.getLostItemId());
+        dto.setFoundItemId(match.getFoundItemId());
+
+        // ✅ FIXED
+        dto.setMatchStatus(match.getStatus());
+
+        return dto;
     }
 }

@@ -1,10 +1,6 @@
 package com.lostfound.lostfound.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "item_matches")
@@ -16,23 +12,20 @@ public class Match {
 
     private Long lostItemId;
     private Long foundItemId;
-    private String matchStatus;
 
-    public Match() {
-    }
+    // ✅ KEEP CONSISTENT NAME
+    private String status;
 
-    public Match(Long lostItemId, Long foundItemId, String matchStatus) {
+    public Match() {}
+
+    public Match(Long lostItemId, Long foundItemId, String status) {
         this.lostItemId = lostItemId;
         this.foundItemId = foundItemId;
-        this.matchStatus = matchStatus;
+        this.status = status;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getLostItemId() {
@@ -51,11 +44,13 @@ public class Match {
         this.foundItemId = foundItemId;
     }
 
-    public String getMatchStatus() {
-        return matchStatus;
+    // ✅ FIXED GETTER
+    public String getStatus() {
+        return status;
     }
 
-    public void setMatchStatus(String matchStatus) {
-        this.matchStatus = matchStatus;
+    // ✅ FIXED SETTER
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
