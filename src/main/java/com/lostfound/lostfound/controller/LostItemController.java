@@ -41,4 +41,10 @@ public class LostItemController {
     public List<LostItem> getAllLostItems() {
         return service.getAllLostItems();
     }
+
+    @DeleteMapping("/lost-items/{id}")
+    @ResponseBody
+    public void deleteLostItem(@PathVariable Long id) {
+        service.deleteLostItem(id);
+    }
 }

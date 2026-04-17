@@ -28,4 +28,9 @@ public class FoundItemServiceImpl implements FoundItemService {
     public List<FoundItem> getAllFoundItems() {
         return repository.findAll();
     }
+
+    @Override
+    public void deleteFoundItem(Long id) {
+        repository.deleteById(id);
+    }
 }

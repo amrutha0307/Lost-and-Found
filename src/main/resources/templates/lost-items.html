@@ -620,6 +620,9 @@
             <button class="tab-btn active" type="button" data-tab="panel-lost">🪪 Report Lost</button>
             <button class="tab-btn" type="button" data-tab="panel-found">📦 Report Found</button>
             <button class="tab-btn" type="button" data-tab="panel-browse">📋 Browse All</button>
+            <button class="tab-btn" type="button" data-tab="panel-claims" id="claimsTabBtn" style="display:none">⚖️ Review Claims</button>
+            <button class="tab-btn" type="button" data-tab="panel-manage" id="manageTabBtn" style="display:none">🗂️ Manage Items</button>
+            <button class="tab-btn" type="button" data-tab="panel-analytics" id="analyticsTabBtn" style="display:none">📊 Analytics</button>
         </div>
 
         <!-- ── LOST PANEL ── -->
@@ -734,6 +737,76 @@
 
         </div><!-- /panel-browse -->
 
+        <div class="tab-panel" id="panel-claims">
+            <div class="browse-card violet-card">
+                <div class="browse-card-header">
+                    <div class="card-section-title" style="margin-bottom:0;color:var(--violet)">Claim Review Queue</div>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr><th>Claim ID</th><th>Match</th><th>Found Item</th><th>User</th><th>Proof</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="claims-tbody">
+                        <tr>
+                            <td colspan="7" style="padding:18px 16px;color:var(--text-muted)">No claims submitted yet.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="panel-manage">
+            <div class="browse-card amber-card">
+                <div class="browse-card-header">
+                    <div class="card-section-title amber" style="margin-bottom:0">Manage Lost Items</div>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr><th>ID</th><th>Name</th><th>Reported By</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="manage-lost-tbody">
+                        <tr>
+                            <td colspan="5" style="padding:18px 16px;color:var(--text-muted)">Loading lost items...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="browse-card teal-card">
+                <div class="browse-card-header">
+                    <div class="card-section-title teal" style="margin-bottom:0">Manage Found Items</div>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr><th>ID</th><th>Name</th><th>Location</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="manage-found-tbody">
+                        <tr>
+                            <td colspan="5" style="padding:18px 16px;color:var(--text-muted)">Loading found items...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="panel-analytics">
+            <div class="action-grid" id="analyticsGrid"></div>
+            <div class="browse-card violet-card">
+                <div class="browse-card-header">
+                    <div class="card-section-title" style="margin-bottom:0;color:var(--violet)">System Snapshot</div>
+                </div>
+                <div style="padding:20px 24px;color:var(--text-muted);line-height:1.7" id="analyticsSummary">
+                    Loading analytics...
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -755,10 +828,10 @@
     ];
 
     const ADMIN_ACTIONS = [
-        { icon:'✅', color:'teal',   label:'Verify Claims',         desc:'Check proof of ownership for claims.',      view:'browse' },
-        { icon:'⚖️', color:'amber',  label:'Approve / Reject',      desc:'Finalise pending claim decisions.',          view:'browse' },
-        { icon:'🗂️', color:'violet', label:'Manage Items',          desc:'Edit or remove items from the system.',      view:'browse' },
-        { icon:'📊', color:'red',    label:'View Analytics',        desc:'Overview of activity and statistics.',       view:'browse' },
+        { icon:'✅', color:'teal',   label:'Verify Claims',         desc:'Check proof of ownership for claims.',      view:'claims' },
+        { icon:'⚖️', color:'amber',  label:'Approve / Reject',      desc:'Finalise pending claim decisions.',          view:'claims' },
+        { icon:'🗂️', color:'violet', label:'Manage Items',          desc:'Edit or remove items from the system.',      view:'manage' },
+        { icon:'📊', color:'red',    label:'View Analytics',        desc:'Overview of activity and statistics.',       view:'analytics' },
     ];
 
     /* ───────────────── TOAST ───────────────── */
@@ -778,14 +851,50 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function getSession() {
+        const raw = sessionStorage.getItem('lostfoundSession');
+        return raw ? JSON.parse(raw) : null;
+    }
+
+    function getCurrentRole() {
+        const session = getSession();
+        return session ? session.role : null;
+    }
+
+    function activateTab(tabKey) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        const targetTab = document.querySelector(`.tab-btn[data-tab="${tabKey}"]`);
+        if (targetTab) {
+            targetTab.classList.add('active');
+        }
+        const targetPanel = document.getElementById(tabKey);
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+        }
+
+        if (tabKey === 'panel-claims' && getCurrentRole() === 'admin') {
+            loadClaims();
+        }
+
+        if (tabKey === 'panel-browse') {
+            configureBrowsePanel();
+        }
+
+        if (tabKey === 'panel-manage' && getCurrentRole() === 'admin') {
+            loadManageItems();
+        }
+
+        if (tabKey === 'panel-analytics' && getCurrentRole() === 'admin') {
+            loadAnalytics();
+        }
+    }
+
     /* ───────────────── TAB SWITCHING ───────────────── */
     function initTabs() {
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
+                activateTab(btn.dataset.tab);
             });
         });
     }
@@ -821,6 +930,19 @@
     function buildDashboard(role) {
         const cred    = CREDS[role];
         const actions = role === 'admin' ? ADMIN_ACTIONS : USER_ACTIONS;
+        const claimsTabBtn = document.getElementById('claimsTabBtn');
+        const manageTabBtn = document.getElementById('manageTabBtn');
+        const analyticsTabBtn = document.getElementById('analyticsTabBtn');
+
+        if (claimsTabBtn) {
+            claimsTabBtn.style.display = role === 'admin' ? 'inline-flex' : 'none';
+        }
+        if (manageTabBtn) {
+            manageTabBtn.style.display = role === 'admin' ? 'inline-flex' : 'none';
+        }
+        if (analyticsTabBtn) {
+            analyticsTabBtn.style.display = role === 'admin' ? 'inline-flex' : 'none';
+        }
 
         document.getElementById('dashTitle').textContent = cred.display + ' Dashboard';
         document.getElementById('dashSub').textContent   = cred.subtitle;
@@ -848,13 +970,15 @@
 
             card.addEventListener('click', () => {
                 showView('view-app');
-                // activate the right tab
-                const tabKey = { lost:'panel-lost', found:'panel-found', browse:'panel-browse' }[a.view] || 'panel-lost';
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-                const targetTab = document.querySelector(`.tab-btn[data-tab="${tabKey}"]`);
-                if (targetTab) targetTab.classList.add('active');
-                document.getElementById(tabKey).classList.add('active');
+                const tabKey = {
+                    lost:'panel-lost',
+                    found:'panel-found',
+                    browse:'panel-browse',
+                    claims:'panel-claims',
+                    manage:'panel-manage',
+                    analytics:'panel-analytics'
+                }[a.view] || 'panel-lost';
+                activateTab(tabKey);
             });
 
             grid.appendChild(card);
@@ -976,16 +1100,22 @@
     async function claimItem(foundItemId) {
         try {
             const matchRes = await fetch('/api/matches');
+            if (!matchRes.ok) {
+                throw new Error('Unable to load matches');
+            }
             const matches  = await matchRes.json();
-            const match    = matches.find(m => m.foundItemId === foundItemId);
+            const match    = matches.find(m => String(m.foundItemId) === String(foundItemId));
 
             if (!match) { toast('No match found for this item.', 'error'); return; }
 
-            await fetch('/claims', {
+            const claimRes = await fetch('/claims', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ matchId: match.id, userId: 1, proof: 'Claimed via UI' })
             });
+            if (!claimRes.ok) {
+                throw new Error('Unable to submit claim');
+            }
 
             const btn = document.getElementById('btn-' + foundItemId);
             if (btn) { btn.disabled = true; btn.textContent = 'Claimed ✔'; }
@@ -996,6 +1126,327 @@
             toast('Claim submitted successfully!', 'success');
         } catch (err) {
             toast('Server error — please try again.', 'error');
+        }
+    }
+
+    async function refreshClaimButtons() {
+        if (getCurrentRole() !== 'user') {
+            return;
+        }
+
+        try {
+            const [matchesRes, claimsRes] = await Promise.all([
+                fetch('/api/matches'),
+                fetch('/claims')
+            ]);
+
+            if (!matchesRes.ok || !claimsRes.ok) {
+                return;
+            }
+
+            const matches = await matchesRes.json();
+            const claims = await claimsRes.json();
+
+            document.querySelectorAll('[id^="btn-"]').forEach(btn => {
+                const foundItemId = btn.id.replace('btn-', '');
+                const statusEl = document.getElementById('status-' + foundItemId);
+                const match = matches.find(item => String(item.foundItemId) === String(foundItemId));
+
+                if (!match) {
+                    btn.disabled = true;
+                    btn.textContent = 'No Match Yet';
+                    if (statusEl) {
+                        statusEl.textContent = 'Waiting for match';
+                        statusEl.style.color = 'var(--text-muted)';
+                    }
+                    return;
+                }
+
+                const existingClaim = claims.find(item => String(item.matchId) === String(match.id));
+                if (existingClaim) {
+                    btn.disabled = true;
+                    btn.textContent = 'Claimed ✔';
+                    if (statusEl) {
+                        statusEl.textContent = existingClaim.status || 'PENDING';
+                        statusEl.style.color = existingClaim.status === 'REJECTED' ? 'var(--red)' : 'var(--teal)';
+                    }
+                    return;
+                }
+
+                btn.disabled = false;
+                btn.textContent = 'Claim';
+                if (statusEl) {
+                    statusEl.textContent = 'Matched';
+                    statusEl.style.color = 'var(--amber)';
+                }
+            });
+        } catch (err) {
+            // Leave the server-rendered buttons as-is if background refresh fails.
+        }
+    }
+
+    function configureBrowsePanel() {
+        if (getCurrentRole() === 'admin') {
+            document.querySelectorAll('[id^="btn-"]').forEach(btn => {
+                btn.disabled = true;
+                btn.textContent = 'Admin View';
+            });
+
+            document.querySelectorAll('[id^="status-"]').forEach(statusEl => {
+                statusEl.textContent = 'Review in admin tools';
+                statusEl.style.color = 'var(--violet)';
+            });
+            return;
+        }
+
+        refreshClaimButtons();
+    }
+
+    async function loadClaims() {
+        if (getCurrentRole() !== 'admin') {
+            return;
+        }
+
+        const tbody = document.getElementById('claims-tbody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="padding:18px 16px;color:var(--text-muted)">Loading claims...</td>
+            </tr>
+        `;
+
+        try {
+            const [claimsRes, matchesRes, foundRes] = await Promise.all([
+                fetch('/claims'),
+                fetch('/api/matches'),
+                fetch('/found-items')
+            ]);
+
+            const claims = await claimsRes.json();
+            const matches = await matchesRes.json();
+            const foundItems = await foundRes.json();
+
+            if (!claims.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="padding:18px 16px;color:var(--text-muted)">No claims submitted yet.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = claims.map(claim => {
+                const match = matches.find(item => item.id === claim.matchId);
+                const foundItem = match ? foundItems.find(item => item.id === match.foundItemId) : null;
+                const status = claim.status || 'PENDING';
+                const isPending = status === 'PENDING';
+
+                return `
+                    <tr>
+                        <td>${claim.id}</td>
+                        <td>${claim.matchId}</td>
+                        <td>${foundItem ? foundItem.name : 'Unknown item'}</td>
+                        <td>${claim.userId}</td>
+                        <td>${claim.proof || 'No proof submitted'}</td>
+                        <td><span class="status-pill">${status}</span></td>
+                        <td>
+                            <button class="claim-btn" type="button" onclick="updateClaimStatus(${claim.id}, 'APPROVED')" ${isPending ? '' : 'disabled'}>Approve</button>
+                            <button class="claim-btn" type="button" onclick="updateClaimStatus(${claim.id}, 'REJECTED')" ${isPending ? '' : 'disabled'} style="margin-left:8px;background:var(--red-dim);color:var(--red);border-color:rgba(240,96,96,.25)">Reject</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (err) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="padding:18px 16px;color:var(--red)">Unable to load claims right now.</td>
+                </tr>
+            `;
+        }
+    }
+
+    async function updateClaimStatus(claimId, status) {
+        if (getCurrentRole() !== 'admin') {
+            toast('Only admins can review claims.', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/claims/verify/${claimId}?status=${status}`, {
+                method: 'PUT'
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to update claim');
+            }
+
+            toast(`Claim ${status.toLowerCase()} successfully.`, 'success');
+            await loadClaims();
+        } catch (err) {
+            toast('Could not update claim status.', 'error');
+        }
+    }
+
+    async function loadManageItems() {
+        if (getCurrentRole() !== 'admin') {
+            return;
+        }
+
+        const lostTbody = document.getElementById('manage-lost-tbody');
+        const foundTbody = document.getElementById('manage-found-tbody');
+
+        try {
+            const [lostRes, foundRes, matchesRes, claimsRes] = await Promise.all([
+                fetch('/lost-items'),
+                fetch('/found-items'),
+                fetch('/api/matches'),
+                fetch('/claims')
+            ]);
+
+            if (!lostRes.ok || !foundRes.ok || !matchesRes.ok || !claimsRes.ok) {
+                throw new Error('Unable to load items');
+            }
+
+            const [lostItems, foundItems, matches, claims] = await Promise.all([
+                lostRes.json(),
+                foundRes.json(),
+                matchesRes.json(),
+                claimsRes.json()
+            ]);
+
+            lostTbody.innerHTML = lostItems.length ? lostItems.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.reportedBy || 'Unknown'}</td>
+                    <td><span class="status-pill">${item.status || 'REPORTED'}</span></td>
+                    <td>${renderManageAction('lost', item.id, matches, claims)}</td>
+                </tr>
+            `).join('') : `
+                <tr>
+                    <td colspan="5" style="padding:18px 16px;color:var(--text-muted)">No lost items to manage.</td>
+                </tr>
+            `;
+
+            foundTbody.innerHTML = foundItems.length ? foundItems.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.location || 'Unknown'}</td>
+                    <td><span class="status-pill">${item.status || 'RECORDED'}</span></td>
+                    <td>${renderManageAction('found', item.id, matches, claims)}</td>
+                </tr>
+            `).join('') : `
+                <tr>
+                    <td colspan="5" style="padding:18px 16px;color:var(--text-muted)">No found items to manage.</td>
+                </tr>
+            `;
+        } catch (err) {
+            lostTbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="padding:18px 16px;color:var(--red)">Unable to load lost items.</td>
+                </tr>
+            `;
+            foundTbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="padding:18px 16px;color:var(--red)">Unable to load found items.</td>
+                </tr>
+            `;
+        }
+    }
+
+    async function deleteItemRecord(type, id) {
+        if (getCurrentRole() !== 'admin') {
+            toast('Only admins can manage items.', 'error');
+            return;
+        }
+
+        const endpoint = type === 'lost' ? `/lost-items/${id}` : `/found-items/${id}`;
+
+        try {
+            const res = await fetch(endpoint, { method: 'DELETE' });
+            if (!res.ok) {
+                throw new Error('Delete failed');
+            }
+
+            toast(`${type === 'lost' ? 'Lost' : 'Found'} item deleted.`, 'success');
+            await Promise.all([loadManageItems(), loadAnalytics()]);
+        } catch (err) {
+            toast('Could not delete the selected item.', 'error');
+        }
+    }
+
+    function renderManageAction(type, id, matches, claims) {
+        const relatedMatches = matches.filter(match =>
+            type === 'lost' ? String(match.lostItemId) === String(id) : String(match.foundItemId) === String(id)
+        );
+        const hasClaim = relatedMatches.some(match => claims.some(claim => String(claim.matchId) === String(match.id)));
+
+        if (relatedMatches.length || hasClaim) {
+            return '<span style="color:var(--text-muted);font-size:.78rem">Linked to match/claim</span>';
+        }
+
+        return `<button class="claim-btn" type="button" onclick="deleteItemRecord('${type}', ${id})">Delete</button>`;
+    }
+
+    async function loadAnalytics() {
+        if (getCurrentRole() !== 'admin') {
+            return;
+        }
+
+        const grid = document.getElementById('analyticsGrid');
+        const summary = document.getElementById('analyticsSummary');
+
+        try {
+            const [lostRes, foundRes, claimsRes, matchesRes] = await Promise.all([
+                fetch('/lost-items'),
+                fetch('/found-items'),
+                fetch('/claims'),
+                fetch('/api/matches')
+            ]);
+
+            if (!lostRes.ok || !foundRes.ok || !claimsRes.ok || !matchesRes.ok) {
+                throw new Error('Unable to load analytics');
+            }
+
+            const [lostItems, foundItems, claims, matches] = await Promise.all([
+                lostRes.json(),
+                foundRes.json(),
+                claimsRes.json(),
+                matchesRes.json()
+            ]);
+
+            const approvedClaims = claims.filter(item => item.status === 'APPROVED').length;
+            const pendingClaims = claims.filter(item => !item.status || item.status === 'PENDING').length;
+            const matchedItems = matches.filter(item => item.matchStatus === 'PENDING' || item.matchStatus === 'APPROVED').length;
+
+            grid.innerHTML = [
+                { icon: '🪪', label: 'Lost Reports', value: lostItems.length, color: '' },
+                { icon: '📦', label: 'Found Reports', value: foundItems.length, color: 'teal' },
+                { icon: '⚖️', label: 'Pending Claims', value: pendingClaims, color: 'amber' },
+                { icon: '✅', label: 'Approved Claims', value: approvedClaims, color: 'violet' },
+                { icon: '🔗', label: 'Active Matches', value: matchedItems, color: 'red' }
+            ].map((card, index) => `
+                <div class="action-card ${card.color ? card.color + '-card' : ''}" style="animation-delay:${index * 0.05}s;cursor:default">
+                    <div class="ac-icon ${card.color || 'amber'}">${card.icon}</div>
+                    <div class="ac-title">${card.label}</div>
+                    <div class="ac-desc" style="font-size:1.5rem;color:var(--text)">${card.value}</div>
+                </div>
+            `).join('');
+
+            summary.innerHTML = `
+                <strong style="color:var(--text)">Overview</strong><br>
+                There are ${lostItems.length} lost reports, ${foundItems.length} found reports, ${matches.length} matches, and ${claims.length} claims in the system.<br><br>
+                ${pendingClaims} claims are still waiting for review. ${approvedClaims} claims have already been approved by an admin.
+            `;
+        } catch (err) {
+            grid.innerHTML = `
+                <div class="action-card red-card" style="cursor:default">
+                    <div class="ac-icon red">!</div>
+                    <div class="ac-title">Analytics unavailable</div>
+                    <div class="ac-desc">The dashboard could not load system metrics.</div>
+                </div>
+            `;
+            summary.textContent = 'Analytics could not be loaded right now.';
         }
     }
 </script>

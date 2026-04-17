@@ -26,4 +26,9 @@ public class FoundItemController {
     public List<FoundItem> getAllItems() {
         return service.getAllFoundItems();
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteItem(@PathVariable Long id) {
+        service.deleteFoundItem(id);
+    }
 }

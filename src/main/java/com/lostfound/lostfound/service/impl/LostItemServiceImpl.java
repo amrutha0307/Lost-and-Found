@@ -30,7 +30,17 @@ public class LostItemServiceImpl implements LostItemService {
     }
 
     @Override
+    public LostItem getLostItemById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    @Override
     public List<LostItem> getAllLostItems() {
         return repository.findAll();
+    }
+
+    @Override
+    public void deleteLostItem(Long id) {
+        repository.deleteById(id);
     }
 }

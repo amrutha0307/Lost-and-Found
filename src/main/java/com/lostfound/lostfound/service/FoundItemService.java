@@ -11,4 +11,6 @@ public interface FoundItemService {
     FoundItem getFoundItemById(Long id);
 
     List<FoundItem> getAllFoundItems();
+
+    void deleteFoundItem(Long id);
 }

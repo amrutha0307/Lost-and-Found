@@ -7,5 +7,9 @@ public interface LostItemService {
 
     LostItem saveLostItem(LostItem lostItem);
 
+    LostItem getLostItemById(Long id);
+
     List<LostItem> getAllLostItems();
+
+    void deleteLostItem(Long id);
 }

@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface ClaimService {
 
+    List<Claim> getAllClaims();
+
     Claim createClaim(ClaimDTO dto);
 
     Claim verifyClaim(Long id, String status);

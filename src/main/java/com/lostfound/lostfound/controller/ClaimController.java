@@ -15,6 +15,11 @@ public class ClaimController {
     @Autowired
     private ClaimService service;
 
+    @GetMapping
+    public List<Claim> getAllClaims() {
+        return service.getAllClaims();
+    }
+
     // CREATE CLAIM
     @PostMapping
     public Claim createClaim(@RequestBody ClaimDTO dto) {
