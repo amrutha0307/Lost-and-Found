@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lost & Found Dashboard</title>
+
+  <!-- ✅ FIXED CSS PATH -->
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+<main id="dashboardRoot" class="page-shell">
+  <section class="dashboard-layout">
+    <article class="dashboard-panel">
+
+      <header class="dashboard-header">
+        <div>
+          <span class="eyebrow">Dashboard</span>
+          <h1><span id="roleTitle">User</span> dashboard</h1>
+          <p id="dashboardSubtitle" class="dashboard-subtitle"></p>
+        </div>
+
+        <div class="button-row">
+          <span id="roleChip" class="role-chip">User</span>
+          <button id="logoutButton" class="secondary-btn" type="button">Logout</button>
+        </div>
+      </header>
+
+      <!-- ACTION CARDS -->
+      <section id="actionGrid" class="card-grid"></section>
+
+    </article>
+  </section>
+</main>
+
+<!-- ✅ FIXED JS PATH -->
+<script th:src="@{/js/auth.js}"></script>
+
+<!-- 🔥 ADD THIS SCRIPT -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+
+    const credentials = {
+      user: {
+        displayName: "User",
+        actions: [
+          { icon: "📝", title: "Report lost item", description: "Submit lost item details" },
+          { icon: "📦", title: "Report found item", description: "Submit found item details" },
+          { icon: "🔎", title: "Search items", description: "Browse all items" },
+          { icon: "🙋", title: "Claim item", description: "Claim your item" }
+        ]
+      },
+      admin: {
+        displayName: "Admin",
+        actions: [
+          { icon: "✅", title: "Verify claims", description: "Verify ownership" },
+          { icon: "⚖️", title: "Approve / reject claims", description: "Approve or reject" },
+          { icon: "🗂️", title: "Manage items", description: "Manage system data" }
+        ]
+      }
+    };
+
+    // GET SESSION
+    const session = JSON.parse(sessionStorage.getItem("lostfoundSession"));
+
+    if (!session) {
+      window.location.href = "/";
+      return;
+    }
+
+    const account = credentials[session.role];
+
+    // SET HEADER
+    document.getElementById("roleTitle").textContent = account.displayName;
+    document.getElementById("roleChip").textContent = account.displayName;
+
+    document.getElementById("dashboardSubtitle").textContent =
+            session.role === "admin"
+                    ? "Admin control panel"
+                    : "User dashboard";
+
+    // CREATE CARDS
+    const cardGrid = document.getElementById("actionGrid");
+    cardGrid.innerHTML = "";
+
+    account.actions.forEach((action) => {
+      const card = document.createElement("article");
+      card.className = "action-card";
+
+      card.innerHTML = `
+          <div class="action-icon">${action.icon}</div>
+          <h3>${action.title}</h3>
+          <p>${action.description}</p>
+        `;
+
+      // 🔥 IMPORTANT: NAVIGATION
+      card.addEventListener("click", () => {
+        window.location.href = "/lost-items";
+      });
+
+      cardGrid.appendChild(card);
+    });
+
+    // LOGOUT
+    document.getElementById("logoutButton").addEventListener("click", () => {
+      sessionStorage.removeItem("lostfoundSession");
+      window.location.href = "/";
+    });
+
+  });
+</script>
+
+</body>
+</html>
