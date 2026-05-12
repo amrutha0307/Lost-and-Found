@@ -440,13 +440,13 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .table-scroll { overflow-x: auto; }
+        .table-scroll { overflow-x: visible; }
         table { width: 100%; border-collapse: collapse; font-size: .86rem; }
         thead th {
             padding: 11px 16px;
             text-align: left; font-size: .7rem; font-weight: 600;
             letter-spacing: .08em; text-transform: uppercase;
-            white-space: nowrap;
+            white-space: normal;
         }
         .browse-card.amber-card thead th { color: var(--amber); background: rgba(240,169,64,.05); }
         .browse-card.teal-card  thead th { color: var(--teal);  background: rgba(62,207,178,.05);  }
@@ -691,7 +691,7 @@
                         </thead>
                         <tbody id="lost-tbody">
                         <!-- Thymeleaf server-render -->
-                        <tr th:each="item : ${items}" th:remove="tag">
+                        <tr th:each="item : ${items}">
                             <td th:text="${item.id}"></td>
                             <td th:text="${item.name}"></td>
                             <td th:text="${item.description}"></td>
@@ -717,7 +717,7 @@
                         </thead>
                         <tbody id="found-tbody">
                         <!-- Thymeleaf server-render -->
-                        <tr th:each="item : ${foundItems}" th:remove="tag">
+                        <tr th:each="item : ${foundItems}">
                             <td th:text="${item.id}"></td>
                             <td th:text="${item.name}"></td>
                             <td th:text="${item.description}"></td>
